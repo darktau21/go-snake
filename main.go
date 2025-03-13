@@ -9,7 +9,7 @@ func main() {
 			Direction: game.Right,
 		},
 		Food:        game.Position{X: 10, Y: 10},
-		BoardWidth:  20,
+		BoardWidth:  40,
 		BoardHeight: 20,
 		Score:       0,
 		GameOver:    false,
