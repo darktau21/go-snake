@@ -10,7 +10,6 @@ import (
 
 type View struct {
 	screen tcell.Screen
-	quit   chan struct{}
 }
 
 func NewView() *View {
@@ -37,19 +36,20 @@ func (v *View) Render(state GameState) {
 	offsetX := (screenWidth - boardWidth) / 2
 	offsetY := (screenHeight - boardHeight) / 2
 
-	for x := range boardWidth {
-		v.screen.SetContent(offsetX+x, offsetY, tcell.RuneHLine, nil, tcell.StyleDefault.Foreground(tcell.ColorWhite))
-		v.screen.SetContent(offsetX+x, offsetY+boardHeight-1, tcell.RuneHLine, nil, tcell.StyleDefault.Foreground(tcell.ColorWhite))
-	}
-	for y := range boardHeight {
-		v.screen.SetContent(offsetX, offsetY+y, tcell.RuneVLine, nil, tcell.StyleDefault.Foreground(tcell.ColorWhite))
-		v.screen.SetContent(offsetX+boardWidth-1, offsetY+y, tcell.RuneVLine, nil, tcell.StyleDefault.Foreground(tcell.ColorWhite))
+	for x := -1; x <= boardWidth; x++ {
+		v.screen.SetContent(offsetX+x, offsetY-1, tcell.RuneHLine, nil, tcell.StyleDefault.Foreground(tcell.ColorWhite))
+		v.screen.SetContent(offsetX+x, offsetY+boardHeight, tcell.RuneHLine, nil, tcell.StyleDefault.Foreground(tcell.ColorWhite))
 	}
 
-	v.screen.SetContent(offsetX, offsetY, tcell.RuneULCorner, nil, tcell.StyleDefault.Foreground(tcell.ColorWhite))
-	v.screen.SetContent(offsetX+boardWidth-1, offsetY, tcell.RuneURCorner, nil, tcell.StyleDefault.Foreground(tcell.ColorWhite))
-	v.screen.SetContent(offsetX, offsetY+boardHeight-1, tcell.RuneLLCorner, nil, tcell.StyleDefault.Foreground(tcell.ColorWhite))
-	v.screen.SetContent(offsetX+boardWidth-1, offsetY+boardHeight-1, tcell.RuneLRCorner, nil, tcell.StyleDefault.Foreground(tcell.ColorWhite))
+	for y := -1; y <= boardHeight; y++ {
+		v.screen.SetContent(offsetX-1, offsetY+y, tcell.RuneVLine, nil, tcell.StyleDefault.Foreground(tcell.ColorWhite))
+		v.screen.SetContent(offsetX+boardWidth, offsetY+y, tcell.RuneVLine, nil, tcell.StyleDefault.Foreground(tcell.ColorWhite))
+	}
+
+	v.screen.SetContent(offsetX-1, offsetY-1, tcell.RuneULCorner, nil, tcell.StyleDefault.Foreground(tcell.ColorWhite))
+	v.screen.SetContent(offsetX+boardWidth, offsetY-1, tcell.RuneURCorner, nil, tcell.StyleDefault.Foreground(tcell.ColorWhite))
+	v.screen.SetContent(offsetX-1, offsetY+boardHeight, tcell.RuneLLCorner, nil, tcell.StyleDefault.Foreground(tcell.ColorWhite))
+	v.screen.SetContent(offsetX+boardWidth, offsetY+boardHeight, tcell.RuneLRCorner, nil, tcell.StyleDefault.Foreground(tcell.ColorWhite))
 
 	for _, pos := range state.GetSnake().Body {
 		v.screen.SetContent(offsetX+pos.X, offsetY+pos.Y, tcell.RuneBlock, nil, tcell.StyleDefault.Foreground(tcell.ColorGreen))
@@ -72,8 +72,7 @@ func (v *View) HandleEvents(controller *Controller) {
 		case *tcell.EventKey:
 			switch ev.Key() {
 			case tcell.KeyEscape, tcell.KeyCtrlC:
-				v.screen.Fini()
-				os.Exit(0)
+				v.Quit()
 				return
 			case tcell.KeyUp:
 				controller.ChangeDirection(Up)
@@ -92,5 +91,6 @@ func (v *View) HandleEvents(controller *Controller) {
 }
 
 func (v *View) Quit() {
-	v.quit <- struct{}{}
+	v.screen.Fini()
+	os.Exit(0)
 }

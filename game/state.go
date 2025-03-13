@@ -41,14 +41,10 @@ func (s *State) generateNewFoodPosition() Position {
 			X: rand.Intn(s.BoardWidth),
 			Y: rand.Intn(s.BoardHeight),
 		}
-		if !slices.Contains(s.Snake.Body, newFood) && !s.isBorder(newFood) {
+		if !slices.Contains(s.Snake.Body, newFood) {
 			return newFood
 		}
 	}
-}
-
-func (s *State) isBorder(pos Position) bool {
-	return pos.X == 0 || pos.X == s.BoardWidth-1 || pos.Y == 0 || pos.Y == s.BoardHeight-1
 }
 
 func (s *State) UpdateState() {
@@ -73,15 +69,15 @@ func (s *State) UpdateState() {
 		newHead.X++
 	}
 
-	if newHead.X < 1 {
+	if newHead.X < 0 {
 		newHead.X = s.BoardWidth - 1
-	} else if newHead.X >= s.BoardWidth-1 {
+	} else if newHead.X >= s.BoardWidth {
 		newHead.X = 0
 	}
 
-	if newHead.Y < 1 {
+	if newHead.Y < 0 {
 		newHead.Y = s.BoardHeight - 1
-	} else if newHead.Y >= s.BoardHeight-1 {
+	} else if newHead.Y >= s.BoardHeight {
 		newHead.Y = 0
 	}
 
